@@ -23,10 +23,11 @@ public class Chat extends JFrame{
 	private JScrollPane scrollPane = new JScrollPane(textArea);
 	private JButton send =new JButton("Send");
 	private JTextArea reply = new JTextArea(5,30);
-	public static String ipAddress;
+	private static String ipAddress;
 	private Socket s;
 	private static String username;
 	private PrintWriter out;
+	
 	public Chat(){
 		try {
 			initialize();
@@ -34,22 +35,23 @@ public class Chat extends JFrame{
 			e.printStackTrace();
 		}
 	}
-	public void initialize() throws IOException, UnknownHostException{
+	public void initialize() throws IOException, UnknownHostException, ConnectException{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		scrollPane.setPreferredSize(new Dimension(300, 300));
 		textArea.setText(Conv());
 		frame.add(scrollPane, BorderLayout.NORTH);
 		frame.add(reply, BorderLayout.CENTER);
-		//supposed to create server if unavailable: not working
+		int port = 8090;
+		//supposed to create server if unavailable: occasionally works if changes are saved??
 		try{
-			s = new Socket(ipAddress, 8090);
+			s = new Socket(ipAddress, port);
 		}catch (ConnectException e){
+			e.printStackTrace();
 			new ChatServer();
-			try{
-				s=new Socket(ipAddress, 8090);
-			}catch (ConnectException e1){
-				System.out.println("fail");
-			}
+			s= new Socket(ipAddress, port);
+			
+			
+			
 		}
 		new Thread(new Reader(s.getInputStream())).start();
 		out = new PrintWriter(s.getOutputStream(), true);
@@ -139,11 +141,11 @@ public class Chat extends JFrame{
 				student.responses.add(new Response("I'm not following..."));
 				student.responses.add(new Response("Please leave"));
 			}
-			
 		}
 		new Chat();
 		
 	}
+	
 		private String Conv(){
 			String conv="";
 			for(Group group : groups){
@@ -155,9 +157,7 @@ public class Chat extends JFrame{
 					conv=(conv +one.printResponse(i)+"\n");
 					conv=(conv +two.getFirstName()+ " " +two.getLastName()+ " says:\n");
 					conv=(conv +two.printResponse(i)+"\n");
-					
 				}
-				
 			}
 			return conv;
 		}
@@ -191,11 +191,6 @@ public class Chat extends JFrame{
 				}
 			}
 		}
-				
-		
-		
-		
-		
 	}
 
 class NameComp implements Comparator<Student>{

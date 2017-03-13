@@ -7,6 +7,7 @@ import java.util.ArrayList;
 public class ChatServer {
 	//keep list of all serverhandlers to broadcast messages to everyone
 	ArrayList<ChatServerHandler> list = new ArrayList<ChatServerHandler>();	
+	ArrayList<String> users = new ArrayList<String>();
 	
 	
 	public ChatServer() throws IOException{

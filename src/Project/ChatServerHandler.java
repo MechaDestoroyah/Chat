@@ -1,14 +1,14 @@
 package Project;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.Reader;
 import java.net.Socket;
 
 public class ChatServerHandler implements Runnable{
 
-	private Reader r;
+	private BufferedReader r;
 	private PrintWriter w;
 	@SuppressWarnings("unused")
 	private Socket s;
@@ -18,8 +18,7 @@ public class ChatServerHandler implements Runnable{
 	public ChatServerHandler(Socket s, ChatServer cs) throws IOException {
 		this.s = s;
 		this.cs = cs;
-		System.out.print("ACK\n");
-		this.r = new InputStreamReader(s.getInputStream());
+		this.r = new BufferedReader(new InputStreamReader(s.getInputStream()));
 		this.w = new PrintWriter(s.getOutputStream());
 	}
 
