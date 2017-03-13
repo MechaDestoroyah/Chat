@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class ChatServer {
 	//keep list of all serverhandlers to broadcast messages to everyone
 	ArrayList<ChatServerHandler> list = new ArrayList<ChatServerHandler>();	
-	ArrayList<String> users = new ArrayList<String>();
-	
+	ArrayList<Thread> threads = new ArrayList<Thread>();
+	int ctr=0;
 	
 	public ChatServer() throws IOException{
 		int port =8090;
@@ -19,11 +19,12 @@ public class ChatServer {
 		try{
 			while(true){
 				Socket s = ss.accept();
-				
-				ChatServerHandler sh = new ChatServerHandler(s, this);
-				
-				new Thread(sh).start();
+				ChatServerHandler sh = new ChatServerHandler(s, this, ctr);
 				list.add(sh);
+				threads.add(new Thread(sh));
+				threads.get(ctr).start();
+				ctr++;
+				
 			}
 		}
 		finally{
@@ -37,12 +38,25 @@ public class ChatServer {
 
 	}
 	
-	public void broadcastMessage(char character){
+	public void broadcastMessage(String str){
 		
 		for(ChatServerHandler h : list){
-			h.sendMessage(character);
+			h.sendMessage(str);
 		}
 		
+	}
+	public boolean uniqueNameCheck(ChatServerHandler sh){
+		for(ChatServerHandler h : list){
+			if (sh.hNumber!=h.hNumber){
+				if (h.getUsername().equals(sh.getUsername())){
+					System.out.println("Not unique");
+					sh.sendMessage("Name already in use!");
+					return false;
+					
+				}
+			}
+		}
+		return true;
 	}
 	
 

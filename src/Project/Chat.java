@@ -3,8 +3,10 @@ package Project;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.*;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
@@ -42,7 +44,7 @@ public class Chat extends JFrame{
 		frame.add(scrollPane, BorderLayout.NORTH);
 		frame.add(reply, BorderLayout.CENTER);
 		int port = 8090;
-		//supposed to create server if unavailable: occasionally works if changes are saved??
+		//supposed to create server if unavailable: occasionally works if changes are saved
 		try{
 			s = new Socket(ipAddress, port);
 		}catch (ConnectException e){
@@ -53,11 +55,12 @@ public class Chat extends JFrame{
 			
 			
 		}
+		
 		new Thread(new Reader(s.getInputStream())).start();
 		out = new PrintWriter(s.getOutputStream(), true);
+		out.println(username);
+		out.flush();
 		
-		
-	
 		reply.addKeyListener(new KeyListener(){
 			@Override
             public void keyTyped(KeyEvent e) {
@@ -83,6 +86,7 @@ public class Chat extends JFrame{
 		send.addActionListener((e) -> {
 			addReply();
 		});
+		
 		
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -163,7 +167,7 @@ public class Chat extends JFrame{
 		}
 		
 		private void addReply(){
-			out.print(username + " : " + reply.getText()+"\n");
+			out.println(username + " : " + reply.getText());
 			out.flush();
 			reply.setText("");
 		}
@@ -171,19 +175,22 @@ public class Chat extends JFrame{
 		
 		private class Reader implements Runnable {
 			private InputStream input;
+			private BufferedReader br;
 			
 			public Reader(InputStream is) {
 				input = is;
+				br = new BufferedReader(new InputStreamReader(input));
 			}
 			
+			
 			public void run() {
-				char character = 0;
+				String str = "f";
 				
 				try {
-					while ((character = (char) input.read()) != -1) {
+					while ((str = br.readLine()) != null) {
 						//System.out.print(character);
 						
-						textArea.append(String.valueOf(character));
+						textArea.append(str+"\n");
 					
 					}
 				} catch (IOException e) {
