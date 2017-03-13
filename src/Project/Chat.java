@@ -1,8 +1,14 @@
-package Chat;
+package Project;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.*;
 import javax.swing.*;
 
@@ -17,21 +23,38 @@ public class Chat extends JFrame{
 	private JScrollPane scrollPane = new JScrollPane(textArea);
 	private JButton send =new JButton("Send");
 	private JTextArea reply = new JTextArea(5,30);
-	
+	public static String ipAddress;
+	private Socket s;
+	private static String username;
+	private PrintWriter out;
 	public Chat(){
-		
+		try {
+			initialize();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	public void initialize() throws IOException, UnknownHostException{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		scrollPane.setPreferredSize(new Dimension(300, 300));
 		textArea.setText(Conv());
 		frame.add(scrollPane, BorderLayout.NORTH);
 		frame.add(reply, BorderLayout.CENTER);
-		
-		send.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e){
-				addReply();
+		//supposed to create server if unavailable: not working
+		try{
+			s = new Socket(ipAddress, 8090);
+		}catch (ConnectException e){
+			new ChatServer();
+			try{
+				s=new Socket(ipAddress, 8090);
+			}catch (ConnectException e1){
+				System.out.println("fail");
 			}
-		});
+		}
+		new Thread(new Reader(s.getInputStream())).start();
+		out = new PrintWriter(s.getOutputStream(), true);
+		
+		
 	
 		reply.addKeyListener(new KeyListener(){
 			@Override
@@ -40,7 +63,7 @@ public class Chat extends JFrame{
 			 @Override
 	            public void keyPressed(KeyEvent e) {
 	                if ((e.getKeyCode() == KeyEvent.VK_ENTER) && ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0)) {
-	                   addReply();
+	                	addReply();
 	                }
 	            }
 			 @Override
@@ -51,9 +74,32 @@ public class Chat extends JFrame{
 		frame.add(send, BorderLayout.SOUTH);
 		frame.pack();
 		frame.setVisible(true);
+		
+		
+		
+		
+		send.addActionListener((e) -> {
+			addReply();
+		});
+		
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					s.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+		
+		
 	}
 	
 	public static void main(String[] args){
+		
+		ipAddress = JOptionPane.showInputDialog("Enter the IP Address");
+		username= JOptionPane.showInputDialog("Enter your name");
 		
 		students.add(new Student("Brieanna", "Miller", 1) );
 		students.add(new Student("Nathan", "Borup", 1));
@@ -117,11 +163,35 @@ public class Chat extends JFrame{
 		}
 		
 		private void addReply(){
-			textArea.setText(textArea.getText()+ reply.getText()+"\n");
+			out.print(username + " : " + reply.getText()+"\n");
+			out.flush();
 			reply.setText("");
 		}
-
 		
+		
+		private class Reader implements Runnable {
+			private InputStream input;
+			
+			public Reader(InputStream is) {
+				input = is;
+			}
+			
+			public void run() {
+				char character = 0;
+				
+				try {
+					while ((character = (char) input.read()) != -1) {
+						//System.out.print(character);
+						
+						textArea.append(String.valueOf(character));
+					
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+				
 		
 		
 		

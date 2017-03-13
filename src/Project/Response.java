@@ -1,4 +1,4 @@
-package Chat;
+package Project;
 
 public class Response {
 	private String response;
