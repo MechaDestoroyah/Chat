@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.*;
@@ -25,7 +26,8 @@ public class Chat extends JFrame{
 	private JScrollPane scrollPane = new JScrollPane(textArea);
 	private JButton send =new JButton("Send");
 	private JTextArea reply = new JTextArea(5,30);
-	private static String ipAddress;
+	private static InetAddress ipAddress;
+	private static String ip; 
 	private Socket s;
 	private static String username;
 	private PrintWriter out;
@@ -44,6 +46,7 @@ public class Chat extends JFrame{
 		frame.add(scrollPane, BorderLayout.NORTH);
 		frame.add(reply, BorderLayout.CENTER);
 		int port = 8090;
+		ipAddress = InetAddress.getByName(ip);
 		//supposed to create server if unavailable: occasionally works if changes are saved
 		try{
 			s = new Socket(ipAddress, port);
@@ -104,7 +107,8 @@ public class Chat extends JFrame{
 	
 	public static void main(String[] args){
 		
-		ipAddress = JOptionPane.showInputDialog("Enter the IP Address");
+		ip  = JOptionPane.showInputDialog("Enter the IP Address");
+		
 		username= JOptionPane.showInputDialog("Enter your name");
 		
 		students.add(new Student("Brieanna", "Miller", 1) );
