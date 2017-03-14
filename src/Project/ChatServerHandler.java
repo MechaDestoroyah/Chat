@@ -32,7 +32,7 @@ public class ChatServerHandler implements Runnable{
 			while ((str= br.readLine()) != null) {
 				if(init==false){
 				System.out.print(str);
-				cs.broadcastMessage(str);
+				cs.broadcastMessage(username+ " : " + str);
 				}else{
 					//only ends the thread, probably should terminate chat client too
 					username=str;
@@ -40,7 +40,7 @@ public class ChatServerHandler implements Runnable{
 						s.close();
 						return;
 					}else{
-					cs.broadcastMessage(username + " has joined");
+					sendMessage("ACK\n");
 					init=false;
 					}
 				}

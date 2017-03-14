@@ -171,7 +171,7 @@ public class Chat extends JFrame{
 		}
 		
 		private void addReply(){
-			out.println(username + " : " + reply.getText());
+			out.println(reply.getText());
 			out.flush();
 			reply.setText("");
 		}

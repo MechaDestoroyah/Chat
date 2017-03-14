@@ -50,7 +50,7 @@ public class ChatServer {
 			if (sh.hNumber!=h.hNumber){
 				if (h.getUsername().equals(sh.getUsername())){
 					System.out.println("Not unique");
-					sh.sendMessage("Name already in use!");
+					sh.sendMessage("DENY\n");
 					return false;
 					
 				}
